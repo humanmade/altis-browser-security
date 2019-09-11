@@ -1,0 +1,20 @@
+{
+    "name": "altis/browser-security",
+    "description": "Browser security utilities for WordPress/Altis",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.1",
+    },
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Human Made Limited",
+            "email": "hello@humanmade.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "namespace.php"
+        ]
+    }
+}
