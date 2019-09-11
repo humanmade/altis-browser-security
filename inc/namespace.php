@@ -25,6 +25,9 @@ function bootstrap( array $config ) {
 
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
+
+	// Register cache group as global (as it's path-based rather than data-based).
+	wp_cache_add_global_groups( INTEGRITY_CACHE_GROUP );
 }
 
 /**
@@ -44,8 +47,12 @@ function generate_hash_for_path( string $path, ?string $version = null ) : ?stri
 		return $hash;
 	}
 
-	// TODO
 	// Load from cache if possible.
+	$cache_key = sha1( sprintf( '%s?%s', $path, $version ) );
+	$cached = wp_cache_get( $cache_key, INTEGRITY_CACHE_GROUP );
+	if ( ! empty( $cached ) ) {
+		return $cached;
+	}
 
 	$data = file_get_contents( $path );
 	$hash = hash( INTEGRITY_HASH_ALGO, $data, true );
@@ -53,6 +60,8 @@ function generate_hash_for_path( string $path, ?string $version = null ) : ?stri
 	$value = apply_filters( 'altis.security.browser.generate_hash_for_path', $value, $path, $version );
 
 	// Cache.
+	wp_cache_set( $cache_key, $value, INTEGRITY_CACHE_GROUP, time() + YEAR_IN_SECONDS );
+
 	return $value;
 }
 
