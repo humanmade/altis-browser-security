@@ -3,7 +3,7 @@
     "description": "Browser security utilities for WordPress/Altis",
     "type": "wordpress-plugin",
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.1"
     },
     "license": "GPL-2.0",
     "authors": [
