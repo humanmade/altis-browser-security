@@ -155,8 +155,19 @@ function generate_hash_for_asset( WP_Dependencies $dependencies, string $handle 
 		);
 	}
 
-	$root = Altis\ROOT_DIR;
-	if ( substr( $rel_path, 0, 3 ) === 'wp-' ) {
+	// Determine root directory.
+	if ( defined( 'Altis\\ROOT_DIR' ) ) {
+		$root = Altis\ROOT_DIR;
+	} else {
+		// Either ABSPATH or directory above.
+		if ( file_exists( ABSPATH . '/wp-config.php' ) ) {
+			$root = ABSPATH;
+		} else {
+			$root = dirname( ABSPATH );
+		}
+	}
+
+	if ( $root !== ABSPATH && substr( $rel_path, 0, 3 ) === 'wp-' ) {
 		// Core asset, use ABSPATH instead.
 		$root = ABSPATH;
 	}
