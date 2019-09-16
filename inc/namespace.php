@@ -191,7 +191,8 @@ function generate_hash_for_asset( WP_Dependencies $dependencies, string $handle 
 		);
 	}
 
-	if ( ! set_hash_for_asset( $dependencies, $handle, $hash ) ) {
+	$did_set = set_hash_for_asset( $dependencies, $handle, $hash );
+	if ( ! $did_set ) {
 		// Couldn't set the hash.
 		return new WP_Error(
 			'altis.security.browser.could_not_set_hash',
