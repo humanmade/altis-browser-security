@@ -14,7 +14,7 @@ const INTEGRITY_CACHE_GROUP = 'altis_integrity';
  * Bootstrap.
  *
  * @param array $config {
- *   @var bool $automatic-integrity Enable automatic generation of integrity hashes?
+ *   @var bool $automatic-integrity True to enable automatic generation of integrity hashes, false to disable. (True by default.)
  * }
  */
 function bootstrap( array $config ) {
