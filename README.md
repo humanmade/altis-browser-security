@@ -27,6 +27,7 @@ As a standalone plugin, you can use the following constants to change the behavi
 * `ABS_AUTOMATIC_INTEGRITY` (`bool`): True to enable automatic generation of integrity hashes, false to disable. (True by default.)
 * `ABS_NOSNIFF_HEADER` (`bool`): True to send `X-Content-Type-Options: nosniff`, false to disable. (True by default.)
 * `ABS_FRAME_OPTIONS_HEADER` (`bool`): True to send `X-Frame-Options: SAMEORIGIN`, false to disable. (True by default.)
+* `ABS_XSS_PROTECTION_HEADER` (`bool`): True to send ``X-XSS-Protection: 1; mode=block`, false to disable. (True by default.)
 
 
 ## Features
@@ -81,6 +82,17 @@ define( 'ABS_FRAME_OPTIONS_HEADER', false );
 ```
 
 You can then send your own headers as needed. We recommend hooking into the `template_redirect` hook to send these headers.
+
+
+#### X-XSS-Protection
+
+By default, Altis adds a [`X-XSS-Protection` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection?) with the value set to `1; mode=block`. This prevents browsers from loading if they detect [cross-site scripting (XSS) attacks](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)).
+
+This should generally always be sent. If you need to disable it, set the `ABS_XSS_PROTECTION_HEADER` header:
+
+```php
+define( 'ABS_XSS_PROTECTION_HEADER', false );
+```
 
 
 ## License

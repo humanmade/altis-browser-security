@@ -17,4 +17,5 @@ bootstrap( [
 	'automatic-integrity' => defined( 'ABS_AUTOMATIC_INTEGRITY' ) ? ABS_AUTOMATIC_INTEGRITY : true,
 	'nosniff-header' => defined( 'ABS_NOSNIFF_HEADER' ) ? ABS_NOSNIFF_HEADER : true,
 	'frame-options-header' => defined( 'ABS_FRAME_OPTIONS_HEADER' ) ? ABS_FRAME_OPTIONS_HEADER : true,
+	'xss-protection-header' => defined( 'ABS_XSS_PROTECTION_HEADER' ) ? ABS_XSS_PROTECTION_HEADER :true,
 ] );
