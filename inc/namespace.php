@@ -23,6 +23,14 @@ function bootstrap( array $config ) {
 		add_filter( 'style_loader_tag', __NAMESPACE__ . '\\generate_hash_for_style', 0, 3 );
 	}
 
+	if ( $config['nosniff-header'] ?? true ) {
+		add_action( 'template_redirect', 'send_nosniff_header' );
+	}
+
+	if ( $config['frame-options-header'] ?? true ) {
+		add_action( 'template_redirect', 'send_frame_options_header' );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 
