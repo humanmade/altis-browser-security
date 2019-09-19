@@ -23,6 +23,18 @@ function bootstrap( array $config ) {
 		add_filter( 'style_loader_tag', __NAMESPACE__ . '\\generate_hash_for_style', 0, 3 );
 	}
 
+	if ( $config['nosniff-header'] ?? true ) {
+		add_action( 'template_redirect', 'send_nosniff_header' );
+	}
+
+	if ( $config['frame-options-header'] ?? true ) {
+		add_action( 'template_redirect', 'send_frame_options_header' );
+	}
+
+	if ( $config['xss-protection-header'] ?? true ) {
+		add_action( 'template_redirect', __NAMESPACE__ . '\\send_xss_header' );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 
@@ -332,4 +344,16 @@ function output_integrity_for_style( string $html, string $handle ) : string {
 		$html
 	);
 	return $html;
+}
+
+/**
+ * Send XSS protection header for legacy browsers.
+ *
+ * This is deprecated, but some browsers still want it. Additionally, this is
+ * often tested in automated security checks.
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+ */
+function send_xss_header() {
+	header( 'X-XSS-Protection: 1; mode=block' );
 }
