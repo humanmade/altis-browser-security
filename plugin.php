@@ -14,5 +14,5 @@ if ( function_exists( 'Altis\\Security\\bootstrap' ) ) {
 }
 
 bootstrap( [
-	'automatic-integrity' => true,
+	'automatic-integrity' => defined( 'ABS_AUTOMATIC_INTEGRITY' ) ? ABS_AUTOMATIC_INTEGRITY : true,
 ] );

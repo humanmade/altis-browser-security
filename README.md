@@ -22,6 +22,10 @@ composer require altis/browser-security
 
 If you are using this as part of the [Altis DXP](https://www.altis-dxp.com/), configuration is handled via the configuration framework. Consult the [Altis security module documentation](https://www.altis-dxp.com/resources/docs/security/browser/).
 
+As a standalone plugin, you can use the following constants to change the behaviour of this module:
+
+* `ABS_AUTOMATIC_INTEGRITY` (`bool`): True to enable automatic generation of integrity hashes, false to disable. (True by default.)
+
 
 ## Features
 
