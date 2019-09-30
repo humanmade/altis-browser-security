@@ -35,6 +35,12 @@ function bootstrap( array $config ) {
 		add_action( 'template_redirect', __NAMESPACE__ . '\\send_xss_header' );
 	}
 
+	if ( $config['content-security-policy'] ?? null ) {
+		add_filter( 'altis.security.browser.content_security_policies', function ( $policies ) use ( $config ) {
+			return array_merge( $policies, $config['content-security-policy'] );
+		}, 0 );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_csp_header' );
