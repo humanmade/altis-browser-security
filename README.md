@@ -104,6 +104,8 @@ add_filter( 'altis.security.browser.filter_policy_value', function ( array $valu
 } );
 ```
 
+To build Content-Security-Policy policies, we recommend using the [Laboratory CSP toolkit extension](https://addons.mozilla.org/en-US/firefox/addon/laboratory-by-mozilla/) for Firefox, and the [CSP Evaluator tool](https://csp-evaluator.withgoogle.com/).
+
 
 ### Security Headers
 
