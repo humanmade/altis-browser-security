@@ -83,7 +83,7 @@ add_filter( 'altis.security.browser.content_security_policies', function ( array
 } );
 ```
 
-Special directives (`'self'`, `'unsafe-inline'`, `'unsafe-eval'`, `'none'`, `'strict-dynamic'`) are handled specially and do not need to be quoted.
+Special directives (`'self'`, `'unsafe-inline'`, `'unsafe-eval'`, `'none'`, `'strict-dynamic'`) do not need to be double-quoted.
 
 You can also modify individual directives if desired:
 
