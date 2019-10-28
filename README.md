@@ -57,7 +57,7 @@ set_hash_for_style( 'my-handle', 'sha384-...' );
 
 This plugin can gather and send [Content-Security-Policy policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) for you automatically.
 
-Out of the box, no policies are sent.
+**Out of the box, no policies are sent.** CSP policies tend to be specific to sites, so no assumptions are made about what you may want.
 
 Add a filter to `altis.security.browser.content_security_policies` to set policies. This filter receives an array, where the keys are the policy directive names. Each item can either be a string or a list of directive value strings:
 
