@@ -55,7 +55,7 @@ set_hash_for_style( 'my-handle', 'sha384-...' );
 
 ### Content-Security-Policy
 
-This plugin can automatically gather and send [Content-Security-Policy policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) for you automatically.
+This plugin can gather and send [Content-Security-Policy policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) for you automatically.
 
 Out of the box, no policies are sent.
 
