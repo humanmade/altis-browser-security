@@ -35,8 +35,15 @@ function bootstrap( array $config ) {
 		add_action( 'template_redirect', __NAMESPACE__ . '\\send_xss_header' );
 	}
 
+	if ( $config['content-security-policy'] ?? null ) {
+		add_filter( 'altis.security.browser.content_security_policies', function ( $policies ) use ( $config ) {
+			return array_merge( $policies, $config['content-security-policy'] );
+		}, 0 );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
+	add_action( 'template_redirect', __NAMESPACE__ . '\\send_csp_header' );
 
 	// Register cache group as global (as it's path-based rather than data-based).
 	wp_cache_add_global_groups( INTEGRITY_CACHE_GROUP );
@@ -356,4 +363,104 @@ function output_integrity_for_style( string $html, string $handle ) : string {
  */
 function send_xss_header() {
 	header( 'X-XSS-Protection: 1; mode=block' );
+}
+
+/**
+ * Filter an individual policy value.
+ *
+ * @param string $name Directive name.
+ * @param string|array $value Directive value.
+ * @return string[] List of directive values.
+ */
+function filter_policy_value( string $name, $value ) : array {
+	$value = (array) $value;
+
+	$needs_quotes = [
+		'self',
+		'unsafe-inline',
+		'unsafe-eval',
+		'none',
+		'strict-dynamic',
+	];
+
+	// Normalize directive values.
+	foreach ( $value as &$item ) {
+		if ( in_array( $item, $needs_quotes, true ) || strpos( $item, 'nonce-' ) === 0 ) {
+			// Add missing quotes if the value was erroneously added
+			// without them.
+			$item = sprintf( "'%s'", $item );
+		}
+	}
+
+	/**
+	 * Filter value for a given policy directive.
+	 *
+	 * `$name` is the directive name.
+	 *
+	 * @param array $value List of directive values.
+	 */
+	$value = apply_filters( "altis.security.browser.filter_policy_value.$name", $value );
+
+	/**
+	 * Filter value for a given policy directive.
+	 *
+	 * @param array $value List of directive values.
+	 * @param string $name Directive name.
+	 */
+	return apply_filters( 'altis.security.browser.filter_policy_value', $value, $name );
+}
+
+/**
+ * Send the Content-Security-Policy header.
+ *
+ * The header is only sent if policies have been specified. See
+ * get_content_security_policies() for setting the policies.
+ */
+function send_csp_header() {
+	// Gather and filter the policy parts.
+	$policies = get_content_security_policies();
+	$policy_parts = [];
+	foreach ( $policies as $key => $value ) {
+		$value = filter_policy_value( $key, $value );
+		if ( empty( $value ) ) {
+			continue;
+		}
+		$policy_parts[] = sprintf( '%s %s', $key, implode( ' ', $value ) );
+	}
+	if ( empty( $policy_parts ) ) {
+		return;
+	}
+
+	header( 'Content-Security-Policy: ' . implode( '; ', $policy_parts ) );
+}
+
+/**
+ * Get the content security policies for the current page.
+ *
+ * @return array Map from directive name to value or list of values.
+ */
+function get_content_security_policies() : array {
+	$policies = [
+		'child-src' => [],
+		'font-src' => [],
+		'frame-src' => [],
+		'img-src' => [],
+		'media-src' => [],
+		'object-src' => [],
+		'script-src' => [],
+		'style-src' => [],
+	];
+
+	/**
+	 * Filter the security policies for the current page.
+	 *
+	 * The filtered value is a map from directive name (e.g. `base-uri`,
+	 * `default-src`) to directive value. Each directive value can be a string
+	 * or list of strings.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+	 *
+	 * @param string[] $policies Map from directive name to value or list of values.
+	 */
+	return apply_filters( 'altis.security.browser.content_security_policies', $policies );
 }

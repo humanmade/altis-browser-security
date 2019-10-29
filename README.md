@@ -53,6 +53,60 @@ set_hash_for_style( 'my-handle', 'sha384-...' );
 ```
 
 
+### Content-Security-Policy
+
+This plugin can gather and send [Content-Security-Policy policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) for you automatically.
+
+**Out of the box, no policies are sent.** CSP policies tend to be specific to sites, so no assumptions are made about what you may want.
+
+Add a filter to `altis.security.browser.content_security_policies` to set policies. This filter receives an array, where the keys are the policy directive names. Each item can either be a string or a list of directive value strings:
+
+```php
+add_filter( 'altis.security.browser.content_security_policies', function ( array $policies ) : array {
+	// Policies can be set as strings.
+	$policies['object-src'] = 'none';
+	$policies['base-uri'] = 'self';
+
+	// Policies can also be set as arrays.
+	$policies['font-src'] = [
+		'https://fonts.gstatic.com',
+		'https://cdnjs.cloudflare.com',
+	];
+
+	// Special directives (such as `unsafe-inline`) are handled for you.
+	$policies['script-src'] = [
+		'https:',
+		'unsafe-inline',
+	];
+
+	return $policies;
+} );
+```
+
+Special directives (`'self'`, `'unsafe-inline'`, `'unsafe-eval'`, `'none'`, `'strict-dynamic'`) do not need to be double-quoted.
+
+You can also modify individual directives if desired:
+
+```php
+// You can filter specific keys via the filter name.
+add_filter( 'altis.security.browser.filter_policy_value.font-src', function ( array $values ) : array {
+	$values[] = 'https://fonts.gstatic.com';
+	return $values;
+} );
+
+// A filter is also available with the directive name in a parameter.
+add_filter( 'altis.security.browser.filter_policy_value', function ( array $values, string $name ) : array {
+	if ( $name === 'font-src' ) {
+		$values[] = 'https://cdnjs.cloudflare.com';
+	}
+
+	return $values;
+} );
+```
+
+To build Content-Security-Policy policies, we recommend using the [Laboratory CSP toolkit extension](https://addons.mozilla.org/en-US/firefox/addon/laboratory-by-mozilla/) for Firefox, and the [CSP Evaluator tool](https://csp-evaluator.withgoogle.com/).
+
+
 ### Security Headers
 
 This plugin automatically adds various security headers by default. These follow best-practices for web security and aim to provide a sensible, secure default.
