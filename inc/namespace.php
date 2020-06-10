@@ -475,9 +475,10 @@ function send_report_only_csp_header() {
  * @return void Sends CSP header and exits.
  */
 function send_csp_header( string $header, array $policies ) {
+	$report_only = $header === 'Content-Security-Policy-Report-Only';
 	$policy_parts = [];
 	foreach ( $policies as $key => $value ) {
-		$value = filter_policy_value( $key, $value );
+		$value = filter_policy_value( $key, $value, $report_only );
 		if ( empty( $value ) ) {
 			continue;
 		}
