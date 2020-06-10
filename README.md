@@ -27,7 +27,7 @@ As a standalone plugin, you can use the following constants to change the behavi
 * `ABS_AUTOMATIC_INTEGRITY` (`bool`): True to enable automatic generation of integrity hashes, false to disable. (True by default.)
 * `ABS_NOSNIFF_HEADER` (`bool`): True to send `X-Content-Type-Options: nosniff`, false to disable. (True by default.)
 * `ABS_FRAME_OPTIONS_HEADER` (`bool`): True to send `X-Frame-Options: SAMEORIGIN`, false to disable. (True by default.)
-* `ABS_XSS_PROTECTION_HEADER` (`bool`): True to send ``X-XSS-Protection: 1; mode=block`, false to disable. (True by default.)
+* `ABS_XSS_PROTECTION_HEADER` (`bool`): True to send `X-XSS-Protection: 1; mode=block`, false to disable. (True by default.)
 
 
 ## Features
