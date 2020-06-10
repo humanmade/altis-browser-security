@@ -108,7 +108,9 @@ To build Content-Security-Policy policies, we recommend using the [Laboratory CS
 
 #### Report-Only Policies
 
-To send a [Content-Security-Policy-Report-Only header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only), use the exact same process described above for the ordinary CSP policies with the alternative `altis.security.browser.report_only_content_security_policies` filter. Both normal and report-only policies may be used simultaneously.
+To send a [Content-Security-Policy-Report-Only header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only), use the exact same process described above for the ordinary CSP policies with the alternative filter `altis.security.browser.report_only_content_security_policies`.
+
+Both normal and report-only policies may be used simultaneously.
 
 
 ### Security Headers
