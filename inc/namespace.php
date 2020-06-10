@@ -375,11 +375,13 @@ function send_xss_header() {
 /**
  * Filter an individual policy value.
  *
- * @param string $name Directive name.
- * @param string|array $value Directive value.
+ * @param string       $name        Directive name.
+ * @param string|array $value       Directive value.
+ * @param bool         $report_only Whether the directive is being filtered for
+ *                                  use in a Report-Only policy. (False by default.)
  * @return string[] List of directive values.
  */
-function filter_policy_value( string $name, $value ) : array {
+function filter_policy_value( string $name, $value, bool $report_only = false ) : array {
 	$value = (array) $value;
 
 	$needs_quotes = [
@@ -397,6 +399,25 @@ function filter_policy_value( string $name, $value ) : array {
 			// without them.
 			$item = sprintf( "'%s'", $item );
 		}
+	}
+
+	if ( $report_only ) {
+		/**
+		 * Filter value for a given report-only policy directive.
+		 *
+		 * `$name` is the directive name.
+		 *
+		 * @param array $value List of directive values.
+		 */
+		$value = apply_filters( "altis.security.browser.filter_report_only_policy_value.$name", $value );
+	
+		/**
+		 * Filter value for a given report-only policy directive.
+		 *
+		 * @param array $value List of directive values.
+		 * @param string $name Directive name.
+		 */
+		return apply_filters( 'altis.security.browser.filter_report_only_policy_value', $value, $name );
 	}
 
 	/**
