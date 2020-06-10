@@ -41,6 +41,12 @@ function bootstrap( array $config ) {
 		}, 0 );
 	}
 
+	if ( $config['report-only-content-security-policy'] ?? null ) {
+		add_filter( 'altis.security.browser.report_only_content_security_policies', function ( $policies ) use ( $config ) {
+			return array_merge( $policies, $config['report-only-content-security-policy'] );
+		}, 0 );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_normal_csp_header' );
