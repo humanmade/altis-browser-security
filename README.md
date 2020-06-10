@@ -106,6 +106,10 @@ add_filter( 'altis.security.browser.filter_policy_value', function ( array $valu
 
 To build Content-Security-Policy policies, we recommend using the [Laboratory CSP toolkit extension](https://addons.mozilla.org/en-US/firefox/addon/laboratory-by-mozilla/) for Firefox, and the [CSP Evaluator tool](https://csp-evaluator.withgoogle.com/).
 
+#### Report-Only Policies
+
+To send a [Content-Security-Policy-Report-Only header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only), use the exact same process described above for the ordinary CSP policies with the alternative `altis.security.browser.report_only_content_security_policies` filter. Both normal and report-only policies may be used simultaneously.
+
 
 ### Security Headers
 
