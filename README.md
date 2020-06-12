@@ -108,7 +108,9 @@ To build Content-Security-Policy policies, we recommend using the [Laboratory CS
 
 #### Report-Only Policies
 
-To send a [Content-Security-Policy-Report-Only header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only), use the exact same process described above for the ordinary CSP policies with the alternative filter `altis.security.browser.report_only_content_security_policies`. An external service must be used to ingest the reports from the Report-Only policies. The external service will provide you with a reporting URL which can then be defined by adding a `report-uri` directive with the appropriate URL for processing reports.
+To send a [Content-Security-Policy-Report-Only header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only), use the exact same process described above for the ordinary CSP policies with the alternative filter `altis.security.browser.report_only_content_security_policies`.
+
+An external service must be used to ingest the reports from Report-Only policies. The external service will provide you with a reporting URL which you can use by adding a `report-uri` directive with the appropriate URL for processing reports.
 
 You can also modify individual directives for use in report-only policies in the same manner described above using the filters,
 
