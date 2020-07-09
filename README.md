@@ -112,6 +112,13 @@ To send a [Content-Security-Policy-Report-Only header](https://developer.mozilla
 
 An external service must be used to ingest the reports from Report-Only policies. The external service will provide you with a reporting URL which you can use by adding a `report-uri` directive with the appropriate URL for processing reports.
 
+As an example, you can add a reporting directive to your Report-Only policies by filtering the policies array:
+```php
+add_filter( 'altis.security.browser.report_only_content_security_policies', function ( array $policies ) : array {
+	$policies['report-uri'] = 'https://example.uriports.com/reports';
+	return $policies;
+} );
+
 You can also modify individual directives for use in report-only policies in the same manner described above using the filters,
 
 - `altis.security.browser.filter_report_only_policy_value.{ directive name }`
