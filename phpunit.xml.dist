@@ -1,0 +1,12 @@
+<phpunit bootstrap="tests/bootstrap.php">
+	<testsuites>
+			<testsuite name="BrowserSecurity">
+					<directory prefix="class-test-" suffix=".php">tests</directory>
+			</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist>
+			<directory suffix=".php">inc/</directory>
+		</whitelist>
+	</filter>
+</phpunit>

@@ -16,5 +16,11 @@
         "files": [
             "inc/namespace.php"
         ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.5"
+    },
+    "scripts": {
+        "test": "docker run --rm -v \"$PWD:/code\" humanmade/plugin-tester"
     }
 }

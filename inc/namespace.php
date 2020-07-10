@@ -41,9 +41,16 @@ function bootstrap( array $config ) {
 		}, 0 );
 	}
 
+	if ( $config['report-only-content-security-policy'] ?? null ) {
+		add_filter( 'altis.security.browser.report_only_content_security_policies', function ( $policies ) use ( $config ) {
+			return array_merge( $policies, $config['report-only-content-security-policy'] );
+		}, 0 );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
-	add_action( 'template_redirect', __NAMESPACE__ . '\\send_csp_header' );
+	add_action( 'template_redirect', __NAMESPACE__ . '\\send_normal_csp_header' );
+	add_action( 'template_redirect', __NAMESPACE__ . '\\send_report_only_csp_header' );
 
 	// Register cache group as global (as it's path-based rather than data-based).
 	wp_cache_add_global_groups( INTEGRITY_CACHE_GROUP );
@@ -368,11 +375,13 @@ function send_xss_header() {
 /**
  * Filter an individual policy value.
  *
- * @param string $name Directive name.
- * @param string|array $value Directive value.
+ * @param string       $name        Directive name.
+ * @param string|array $value       Directive value.
+ * @param bool         $report_only Whether the directive is being filtered for
+ *                                  use in a Report-Only policy. (False by default.)
  * @return string[] List of directive values.
  */
-function filter_policy_value( string $name, $value ) : array {
+function filter_policy_value( string $name, $value, bool $report_only = false ) : array {
 	$value = (array) $value;
 
 	$needs_quotes = [
@@ -390,6 +399,25 @@ function filter_policy_value( string $name, $value ) : array {
 			// without them.
 			$item = sprintf( "'%s'", $item );
 		}
+	}
+
+	if ( $report_only ) {
+		/**
+		 * Filter value for a given report-only policy directive.
+		 *
+		 * `$name` is the directive name.
+		 *
+		 * @param array $value List of directive values.
+		 */
+		$value = apply_filters( "altis.security.browser.filter_report_only_policy_value.$name", $value );
+	
+		/**
+		 * Filter value for a given report-only policy directive.
+		 *
+		 * @param array $value List of directive values.
+		 * @param string $name Directive name.
+		 */
+		return apply_filters( 'altis.security.browser.filter_report_only_policy_value', $value, $name );
 	}
 
 	/**
@@ -416,12 +444,41 @@ function filter_policy_value( string $name, $value ) : array {
  * The header is only sent if policies have been specified. See
  * get_content_security_policies() for setting the policies.
  */
-function send_csp_header() {
+function send_normal_csp_header() {
 	// Gather and filter the policy parts.
 	$policies = get_content_security_policies();
+	send_csp_header( 'Content-Security-Policy', $policies );
+}
+
+/**
+ * Send the Content-Security-Policy-Report-Only header.
+ *
+ * The header is only sent if policies have been specified. See
+ * get_report_only_content_security_policies() for setting the policies.
+ */
+function send_report_only_csp_header() {
+	// Gather and filter the report-only policy parts.
+	$policies = get_report_only_content_security_policies();
+	send_csp_header( 'Content-Security-Policy-Report-Only', $policies );
+}
+
+/**
+ * Send the Content-Security-Policy or Content-Security-Policy-Report-Only headers.
+ *
+ * The header is only sent if policies have been specified. See
+ * get_content_security_policies() and get_report_only_content_security_policies()
+ * for setting the policies.
+ *
+ * @param string[] $policies The policies to apply for the specified header.
+ * @param string   $header   One of 'Content-Security-Policy' or
+ *                           'Content-Security-Policy-Report-Only'.
+ * @return void Sends CSP header and exits.
+ */
+function send_csp_header( string $header, array $policies ) {
+	$report_only = $header === 'Content-Security-Policy-Report-Only';
 	$policy_parts = [];
 	foreach ( $policies as $key => $value ) {
-		$value = filter_policy_value( $key, $value );
+		$value = filter_policy_value( $key, $value, $report_only );
 		if ( empty( $value ) ) {
 			continue;
 		}
@@ -431,16 +488,16 @@ function send_csp_header() {
 		return;
 	}
 
-	header( 'Content-Security-Policy: ' . implode( '; ', $policy_parts ) );
+	header( $header . ': ' . implode( '; ', $policy_parts ) );
 }
 
 /**
- * Get the content security policies for the current page.
+ * Return an array of CSP directives for use in CSP and CSP-Report-Only headers.
  *
- * @return array Map from directive name to value or list of values.
+ * @return array Map of directive names to empty arrays.
  */
-function get_content_security_policies() : array {
-	$policies = [
+function get_content_security_policy_directives() : array {
+	return [
 		'child-src' => [],
 		'font-src' => [],
 		'frame-src' => [],
@@ -450,6 +507,15 @@ function get_content_security_policies() : array {
 		'script-src' => [],
 		'style-src' => [],
 	];
+}
+
+/**
+ * Get the content security policies for the current page.
+ *
+ * @return array Map from directive name to value or list of values.
+ */
+function get_content_security_policies() : array {
+	$policies = get_content_security_policy_directives();
 
 	/**
 	 * Filter the security policies for the current page.
@@ -463,4 +529,26 @@ function get_content_security_policies() : array {
 	 * @param string[] $policies Map from directive name to value or list of values.
 	 */
 	return apply_filters( 'altis.security.browser.content_security_policies', $policies );
+}
+
+/**
+ * Get the content security policies for the current page.
+ *
+ * @return array Map from directive name to value or list of values.
+ */
+function get_report_only_content_security_policies() : array {
+	$policies = get_content_security_policy_directives();
+
+	/**
+	 * Filter the report-only security policies for the current page.
+	 *
+	 * The filtered value is a map from directive name (e.g. `base-uri`,
+	 * `default-src`) to directive value. Each directive value can be a
+	 * string or array of strings.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only
+	 *
+	 * @param string[] $policies Map from directive name to value or list of values.
+	 */
+	return apply_filters( 'altis.security.browser.report_only_content_security_policies', $policies );
 }
