@@ -42,14 +42,14 @@ For external assets, you can manually set the integrity hash. After enqueuing (o
 
 ```php
 // Setting hashes for scripts.
-use function Altis\Security\Browser\set_hash_for_script;
+use Altis\Security\Browser;
 wp_enqueue_script( 'my-handle', 'https://...' );
-set_hash_for_script( 'my-handle', 'sha384-...' );
+Browser\set_hash_for_script( 'my-handle', 'sha384-...' );
 
 // Setting hashes for styles.
-use function Altis\Security\Browser\set_hash_for_style;
+use Altis\Security\Browser;
 wp_enqueue_style( 'my-handle', 'https://...' );
-set_hash_for_style( 'my-handle', 'sha384-...' );
+Browser\set_hash_for_style( 'my-handle', 'sha384-...' );
 ```
 
 
