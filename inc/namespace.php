@@ -28,7 +28,7 @@ function bootstrap( array $config ) {
 	}
 
 	if ( $config['frame-options-header'] ?? true ) {
-		add_action( 'template_redirect', 'send_frame_options_header' );
+		add_action( 'template_redirect', __NAMESPACE__ . '\\maybe_send_frame_options_header' );
 	}
 
 	if ( $config['xss-protection-header'] ?? true ) {
@@ -370,6 +370,20 @@ function output_integrity_for_style( string $html, string $handle ) : string {
  */
 function send_xss_header() {
 	header( 'X-XSS-Protection: 1; mode=block' );
+}
+
+/**
+ * Send the frame options header for non-embed pages.
+ *
+ * The embed page specifically needs to be allowed in frames, but other pages
+ * should not be by default.
+ */
+function maybe_send_frame_options_header() {
+	if ( is_embed() ) {
+		return;
+	}
+
+	send_frame_options_header();
 }
 
 /**
