@@ -136,6 +136,23 @@ This plugin automatically adds various security headers by default. These follow
 In some cases, you may want to adjust or disable these headers depending on the use cases of your site.
 
 
+#### Strict-Transport-Security
+
+The [`Strict-Transport-Security` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security) (sometimes called HSTS) is used to enforce HTTPS (TLS/SSL) connections when loading a site and can be used to enhance the site's security.
+
+By default, Altis adds a `Strict-Transport-Security` header if your site is served over HTTPS, with the value set to `max-age=86400` (one day). If you want to override this value (such as for longer durations, or to specify `includeSubdomains`), you can define the `ABS_HSTS` constant:
+
+```php
+define( 'ABS_HSTS', 'max-age=31536000; includeSubDomains' );
+```
+
+To disable the automatic behaviour entirely, set the constant to `false`:
+
+```php
+define( 'ABS_HSTS', false );
+```
+
+
 #### X-Content-Type-Options
 
 By default, Altis adds a [`X-Content-Type-Options` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options) with the value set to `nosniff`. This prevents browsers from attempting to guess the content type based on the content, and instead forces them to follow the type set in the `Content-Type` header.

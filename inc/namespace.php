@@ -47,6 +47,18 @@ function bootstrap( array $config ) {
 		}, 0 );
 	}
 
+	$use_hsts = $config['strict-transport-security'] ?? null;
+
+	// Default to on for HTTPS sites.
+	if ( $use_hsts === null ) {
+		$use_hsts = is_ssl();
+	}
+	if ( $use_hsts ) {
+		add_action( 'template_redirect', function () use ( $use_hsts ) {
+			send_hsts_header( $use_hsts );
+		} );
+	}
+
 	add_filter( 'script_loader_tag', __NAMESPACE__ . '\\output_integrity_for_script', 0, 2 );
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_normal_csp_header' );
@@ -370,6 +382,18 @@ function output_integrity_for_style( string $html, string $handle ) : string {
  */
 function send_xss_header() {
 	header( 'X-XSS-Protection: 1; mode=block' );
+}
+
+/**
+ * Send HSTS protection header to force SSL.
+ */
+function send_hsts_header( $value ) {
+	// Use default if just enabled.
+	if ( $value === true ) {
+		$value = 'max-age=86400';
+	}
+
+	header( sprintf( 'Strict-Transport-Policy: %s', $value ) );
 }
 
 /**
