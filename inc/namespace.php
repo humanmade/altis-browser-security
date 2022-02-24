@@ -47,7 +47,7 @@ function bootstrap( array $config ) {
 		}, 0 );
 	}
 
-	$use_hsts = $config['strict-transport-security'] ?? null;
+	$use_hsts = $config['strict-transport-security'] ?? false;
 
 	// Default to on for HTTPS sites.
 	if ( $use_hsts === null ) {
