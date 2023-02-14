@@ -393,7 +393,7 @@ function send_hsts_header( $value ) {
 		$value = 'max-age=86400';
 	}
 
-	header( sprintf( 'Strict-Transport-Policy: %s', $value ) );
+	header( sprintf( 'Strict-Transport-Security: %s', $value ) );
 }
 
 /**
