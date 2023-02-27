@@ -334,9 +334,9 @@ function output_integrity_for_script( string $tag, string $handle ) : string {
 
 	// Insert the attribute.
 	$tag = str_replace(
-		"type='text/javascript' src='",
+		" src='",
 		sprintf(
-			"type='text/javascript' integrity='%s' src='",
+			" integrity='%s' src='",
 			esc_attr( $hash )
 		),
 		$tag
@@ -362,9 +362,9 @@ function output_integrity_for_style( string $html, string $handle ) : string {
 
 	// Insert the attribute.
 	$html = str_replace(
-		" type='text/css'",
+		" href='",
 		sprintf(
-			" type='text/css' integrity='%s'",
+			" integrity='%s' href='",
 			esc_attr( $hash )
 		),
 		$html
