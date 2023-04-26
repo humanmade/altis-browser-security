@@ -63,6 +63,7 @@ function bootstrap( array $config ) {
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_normal_csp_header' );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_report_only_csp_header' );
+	add_filter( 'rest_pre_serve_request', __NAMESPACE__ . '\\restrict_cors_origin' );
 
 	// Register cache group as global (as it's path-based rather than data-based).
 	wp_cache_add_global_groups( INTEGRITY_CACHE_GROUP );
@@ -589,4 +590,52 @@ function get_report_only_content_security_policies() : array {
 	 * @param string[] $policies Map from directive name to value or list of values.
 	 */
 	return apply_filters( 'altis.security.browser.report_only_content_security_policies', $policies );
+}
+
+/**
+ * Get allowed CORS origins
+ * 
+ * @return array
+ */
+function get_allowed_cors_origins() : array {
+	$origins = [];
+
+	/**
+	 * Filter the allowed CORS origins.
+	 *
+	 * @param array $origins List of allowed origins.
+	 */
+	return apply_filters( 'altis.security.browser.rest_allow_origins', $origins );
+}
+
+/**
+ * Restrict CORS origin
+ */
+function restrict_cors_origin( $value ) {
+	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', false );
+	// Remove CORS header
+	if ( ! $rest_allow_origin ) {
+		// Don't send CORS header if origin is explicitly not allowed
+		remove_filter( 'rest_pre_serve_request','rest_allow_origin' );
+	} else if ( $rest_allow_origin ) {
+		$allowed_cors_origins = get_allowed_cors_origins();
+		if ( ! empty( get_allowed_cors_origins() ) ) {
+			add_filter( 'http_origin', __NAMESPACE__ . '\\check_if_cors_origin_allowed' );
+		}
+	}
+
+	return $value;
+}
+
+/**
+ * Filters the allowed CORS origins.
+ */
+function check_if_cors_origin_allowed( $origin ) : bool {
+	$allow_origins = get_allowed_cors_origins();
+
+	if ( ! empty( $allow_origins ) && in_array( $origin, $allow_origins ) ) {
+		return true;
+	}
+
+	return false;
 }
