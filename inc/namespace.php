@@ -600,7 +600,7 @@ function get_report_only_content_security_policies() : array {
 function restrict_cors_origin( $result ) : mixed {
 	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', $value );
 	// Remove CORS header
-	if ( ! $rest_allow_origin ) {
+	if ( $rest_allow_origin === false ) {
 		// Response 403 if origin is explicitly not allowed
 		return new WP_Error( 'forbidden_access', 'Access Forbidden', array( 'status' => 403 ) );
 	} elseif ( $rest_allow_origin ) {
