@@ -5,6 +5,7 @@ namespace Altis\Security\Browser;
 use Altis;
 use WP_Dependencies;
 use WP_Error;
+use WP_Http;
 
 const INTEGRITY_DATA_KEY = 'altis_integrity_hash';
 const INTEGRITY_HASH_ALGO = 'sha384';
@@ -63,7 +64,10 @@ function bootstrap( array $config ) {
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_normal_csp_header' );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_report_only_csp_header' );
-	add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\\restrict_cors_origin' );
+
+	if ( has_filter( 'altis.security.browser.rest_allow_origin' ) ) {
+		add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\\restrict_cors_origin' );
+	}
 
 	// Register cache group as global (as it's path-based rather than data-based).
 	wp_cache_add_global_groups( INTEGRITY_CACHE_GROUP );
@@ -598,48 +602,12 @@ function get_report_only_content_security_policies() : array {
  * @return mixed
  */
 function restrict_cors_origin( $result ) : mixed {
-	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', $value );
-	// Remove CORS header
-	if ( $rest_allow_origin === false ) {
-		// Response 403 if origin is explicitly not allowed
-		return new WP_Error( 'forbidden_access', 'Access Forbidden', array( 'status' => 403 ) );
-	} elseif ( $rest_allow_origin ) {
-		$allowed_cors_origins = get_allowed_cors_origins();
-		if ( ! empty( get_allowed_cors_origins() ) ) {
-			add_filter( 'http_origin', __NAMESPACE__ . '\\check_if_cors_origin_allowed' );
-		}
-	}
+	$origin = get_http_origin();
+	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', true, $origin );
+
+	if ( ! $rest_allow_origin ) {
+		return new WP_Error( 'altis.security.browser.origin_not_allowed', 'Origin is not on allowed list', [ 'status' => WP_Http::FORBIDDEN ] );
+	} 
 
 	return $result;
-}
-
-/**
- * Filters the allowed CORS origins.
- * 
- * @return bool
- */
-function check_if_cors_origin_allowed( $origin ) : bool {
-	$allow_origins = get_allowed_cors_origins();
-
-	if ( ! empty( $allow_origins ) && in_array( $origin, $allow_origins, true ) ) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
- * Get allowed CORS origins
- * 
- * @return array
- */
-function get_allowed_cors_origins() : array {
-	$origins = [];
-
-	/**
-	 * Filter the allowed CORS origins.
-	 *
-	 * @param array $origins List of allowed origins.
-	 */
-	return apply_filters( 'altis.security.browser.rest_allow_origins', $origins );
 }
