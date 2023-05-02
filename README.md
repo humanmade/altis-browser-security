@@ -216,7 +216,7 @@ add_filter( 'altis.security.browser.rest_allow_origin', function ( $allow, $orig
 To disallow all .local domains:
 ```php
 add_filter( 'altis.security.browser.rest_allow_origin', function ( $allow, $origin ) {
-    if ( substr( $origin, '.local' ) >= 0 ) {
+    if ( strpos( $origin, '.local' ) >= 0 ) {
         return false;
     }
 
