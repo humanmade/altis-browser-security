@@ -5,6 +5,7 @@ namespace Altis\Security\Browser;
 use Altis;
 use WP_Dependencies;
 use WP_Error;
+use WP_Http;
 
 const INTEGRITY_DATA_KEY = 'altis_integrity_hash';
 const INTEGRITY_HASH_ALGO = 'sha384';
@@ -63,6 +64,10 @@ function bootstrap( array $config ) {
 	add_filter( 'style_loader_tag', __NAMESPACE__ . '\\output_integrity_for_style', 0, 3 );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_normal_csp_header' );
 	add_action( 'template_redirect', __NAMESPACE__ . '\\send_report_only_csp_header' );
+
+	if ( has_filter( 'altis.security.browser.rest_allow_origin' ) ) {
+		add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\\restrict_cors_origin' );
+	}
 
 	// Register cache group as global (as it's path-based rather than data-based).
 	wp_cache_add_global_groups( INTEGRITY_CACHE_GROUP );
@@ -589,4 +594,28 @@ function get_report_only_content_security_policies() : array {
 	 * @param string[] $policies Map from directive name to value or list of values.
 	 */
 	return apply_filters( 'altis.security.browser.report_only_content_security_policies', $policies );
+}
+
+/**
+ * Restrict CORS origin
+ * 
+ * @return mixed | WP_Error
+ */
+function restrict_cors_origin( $result ) {
+	$allow = true;
+	$origin = get_http_origin();
+
+	/**
+	 * Filter the allowed CORS origins.
+	 *
+	 * @param bool $allow Whether to allow the origin.
+	 * @param string $origin The origin URL.
+	 */
+	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', $allow, $origin );
+
+	if ( ! $rest_allow_origin ) {
+		return new WP_Error( 'altis.security.browser.origin_not_allowed', 'Origin is not on allowed list', [ 'status' => WP_Http::FORBIDDEN ] );
+	} 
+
+	return $result;
 }
