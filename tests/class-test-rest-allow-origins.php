@@ -27,7 +27,7 @@ class Test_Rest_Allow_Origins extends WP_UnitTestCase {
 		$allow = true;
 
 		add_filter( 'altis.security.browser.rest_allow_origin', function ( $allow, $origin ) {
-			if ( strpos( $origin, '.local' ) ) {
+			if ( false !== strpos( $origin, '.local' ) ) {
 				return false;
 			}
 			return true;
