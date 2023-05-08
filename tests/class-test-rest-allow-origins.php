@@ -26,21 +26,21 @@ class Test_Rest_Allow_Origins extends WP_UnitTestCase {
 	function test_dynamic_filter_disallow_local() {
 		$allow = true;
 
-		add_filter( 'altis.security.browser.rest_allow_origin', function ( $allow, $origin ) {
+		add_filter( 'altis.security.browser.rest_allow_origin', function ( bool $allow, string $origin ) : bool {
 			if ( false !== strpos( $origin, '.local' ) ) {
 				return false;
 			}
 			return true;
 		}, 10, 2 );
 
-		add_filter( 'http_origin', function( $origin ) {
+		add_filter( 'http_origin', function( string $origin ) : string {
 			return 'https://example.local'; 
 		} );
 
 		$result = restrict_cors_origin( true );
 		$this->assertInstanceOf( 'WP_Error', $result );
 
-		add_filter( 'http_origin', function( $origin ) {
+		add_filter( 'http_origin', function( string $origin ) : string {
 			return 'https://example.com'; 
 		} );
 

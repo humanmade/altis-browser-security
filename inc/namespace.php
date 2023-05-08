@@ -599,11 +599,19 @@ function get_report_only_content_security_policies() : array {
 /**
  * Restrict CORS origin
  * 
- * @return mixed
+ * @return mixed | WP_Error
  */
-function restrict_cors_origin( $result ) : mixed {
+function restrict_cors_origin( $result ) {
+	$allow = true;
 	$origin = get_http_origin();
-	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', true, $origin );
+
+	/**
+	 * Filter the allowed CORS origins.
+	 *
+	 * @param bool $allow Whether to allow the origin.
+	 * @param string $origin The origin URL.
+	 */
+	$rest_allow_origin = apply_filters( 'altis.security.browser.rest_allow_origin', $allow, $origin );
 
 	if ( ! $rest_allow_origin ) {
 		return new WP_Error( 'altis.security.browser.origin_not_allowed', 'Origin is not on allowed list', [ 'status' => WP_Http::FORBIDDEN ] );
