@@ -55,7 +55,13 @@ function bootstrap( array $config ) {
 		$use_hsts = is_ssl();
 	}
 	if ( $use_hsts ) {
-		add_action( 'template_redirect', function () use ( $use_hsts ) {
+		add_action( 'parse_request', function () use ( $use_hsts ) {
+			send_hsts_header( $use_hsts );
+		}, -1000 );
+		add_action( 'admin_init', function () use ( $use_hsts ) {
+			send_hsts_header( $use_hsts );
+		} );
+		add_action( 'login_init', function () use ( $use_hsts ) {
 			send_hsts_header( $use_hsts );
 		} );
 	}
