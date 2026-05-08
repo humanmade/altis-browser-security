@@ -351,14 +351,15 @@ function output_integrity_for_script( string $tag, string $handle ) : string {
 		return $tag;
 	}
 
-	// Insert the attribute.
-	$tag = str_replace(
-		" src='",
+	// Insert the attribute, handling both single and double quotes.
+	$tag = preg_replace(
+		'/( src=)([\'"])/',
 		sprintf(
-			" integrity='%s' src='",
+			' integrity=$2%s$2$1$2',
 			esc_attr( $hash )
 		),
-		$tag
+		$tag,
+		1
 	);
 	return $tag;
 }
@@ -379,14 +380,15 @@ function output_integrity_for_style( string $html, string $handle ) : string {
 		return $html;
 	}
 
-	// Insert the attribute.
-	$html = str_replace(
-		" href='",
+	// Insert the attribute, handling both single and double quotes.
+	$html = preg_replace(
+		'/( href=)([\'"])/',
 		sprintf(
-			" integrity='%s' href='",
+			' integrity=$2%s$2$1$2',
 			esc_attr( $hash )
 		),
-		$html
+		$html,
+		1
 	);
 	return $html;
 }
