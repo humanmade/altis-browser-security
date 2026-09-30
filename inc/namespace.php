@@ -353,9 +353,9 @@ function output_integrity_for_script( string $tag, string $handle ) : string {
 
 	// Insert the attribute, handling both single and double quotes.
 	$tag = preg_replace(
-		'/( src=)([\'"])/',
+		'/ src=([\'"])/',
 		sprintf(
-			' integrity=$2%s$2$1$2',
+			' integrity=$1%s$1 src=$1',
 			esc_attr( $hash )
 		),
 		$tag,
@@ -382,9 +382,9 @@ function output_integrity_for_style( string $html, string $handle ) : string {
 
 	// Insert the attribute, handling both single and double quotes.
 	$html = preg_replace(
-		'/( href=)([\'"])/',
+		'/ href=([\'"])/',
 		sprintf(
-			' integrity=$2%s$2$1$2',
+			' integrity=$1%s$1 href=$1',
 			esc_attr( $hash )
 		),
 		$html,
